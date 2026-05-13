@@ -56,7 +56,7 @@ export default function App() {
   );
   const [loading, setLoading] = useState(false);
   const [heroExited, setHeroExited] = useState(false);
-  const heroRef = useRef<HTMLDivElement>(null);
+  const scrollSentinelRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const nameRef = useRef<HTMLDivElement>(null);
   const ruleRef = useRef<HTMLDivElement>(null);
@@ -71,10 +71,9 @@ export default function App() {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
         scrollTrigger: {
-          trigger: heroRef.current,
+          trigger: scrollSentinelRef.current,
           start: "top top",
-          end: "+=100%",
-          pin: true,
+          end: "bottom top",
           scrub: 0.5,
           onLeave: () => setHeroExited(true),
           onEnterBack: () => setHeroExited(false),
@@ -248,164 +247,121 @@ export default function App() {
         </div>
       </nav>
 
-      {/* Section 1: Hero Overlay (pinned) */}
-      <section
-        ref={heroRef}
+      {/* Hero overlay — fixed, fades as user scrolls through sentinel */}
+      <div
+        ref={overlayRef}
         style={{
-          position: "relative",
-          width: "100%",
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
           height: "100vh",
-          overflow: "hidden",
+          backgroundColor: "rgba(245, 242, 236, 0.82)",
+          backdropFilter: "blur(2px)",
+          WebkitBackdropFilter: "blur(2px)",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 10,
+          pointerEvents: "none",
         }}
       >
-        {/* Masonry grid visible behind the overlay */}
         <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            overflow: "hidden",
-            zIndex: 1,
-          }}
+          ref={nameRef}
+          style={{ position: "relative", display: "inline-block", userSelect: "none" }}
         >
-          <div style={{ padding: "16px" }}>
-            <Masonry
-              breakpointCols={breakpointColumns}
-              className="masonry-grid"
-              columnClassName="masonry-grid-column"
-            >
-              {images.slice(0, 25).map((img) => (
-                <div key={`hero-${img.uniqueKey}`} className="image-card">
-                  <img
-                    src={img.src}
-                    alt="Graduation photography"
-                    loading="eager"
-                    decoding="async"
-                    style={{
-                      width: "100%",
-                      display: "block",
-                    }}
-                  />
-                </div>
-              ))}
-            </Masonry>
-          </div>
+          <h1
+            style={{
+              fontFamily: "'WindSong', cursive",
+              fontSize: "clamp(80px, 14vw, 200px)",
+              fontWeight: 400,
+              lineHeight: 0.9,
+              letterSpacing: "0.01em",
+              color: "var(--text-primary)",
+              margin: 0,
+              textAlign: "center",
+            }}
+          >
+            Fitria
+          </h1>
+          <span
+            style={{
+              position: "absolute",
+              right: "-8px",
+              bottom: "-22px",
+              fontFamily: "var(--font-sans)",
+              fontSize: "clamp(9px, 0.85vw, 12px)",
+              fontWeight: 300,
+              letterSpacing: "0.28em",
+              textTransform: "uppercase" as const,
+              color: "var(--text-secondary)",
+              whiteSpace: "nowrap",
+            }}
+          >
+            photography
+          </span>
         </div>
-
-        {/* Overlay that fades on scroll */}
         <div
-          ref={overlayRef}
+          ref={ruleRef}
+          style={{
+            width: "120px",
+            height: "1px",
+            backgroundColor: "var(--text-primary)",
+            opacity: 0.15,
+            marginTop: "32px",
+          }}
+        />
+        <div
+          ref={scrollHintRef}
           style={{
             position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(245, 242, 236, 0.78)",
-            backdropFilter: "blur(2px)",
-            WebkitBackdropFilter: "blur(2px)",
+            bottom: "36px",
+            left: "50%",
+            transform: "translateX(-50%)",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            justifyContent: "center",
-            zIndex: 10,
+            gap: "6px",
+            opacity: 0.6,
           }}
         >
-          <div
-            ref={nameRef}
-            style={{ position: "relative", display: "inline-block", userSelect: "none" }}
-          >
-            <h1
-              style={{
-                fontFamily: "var(--font-script)",
-                fontSize: "clamp(80px, 14vw, 200px)",
-                fontWeight: 400,
-                lineHeight: 0.9,
-                letterSpacing: "0.01em",
-                color: "var(--text-primary)",
-                margin: 0,
-                textAlign: "center",
-              }}
-            >
-              Fitria
-            </h1>
-            <span
-              style={{
-                position: "absolute",
-                right: "-8px",
-                bottom: "-22px",
-                fontFamily: "var(--font-sans)",
-                fontSize: "clamp(9px, 0.85vw, 12px)",
-                fontWeight: 300,
-                letterSpacing: "0.28em",
-                textTransform: "uppercase" as const,
-                color: "var(--text-secondary)",
-                whiteSpace: "nowrap",
-              }}
-            >
-              photography
-            </span>
-          </div>
-          <div
-            ref={ruleRef}
+          <span
             style={{
-              width: "120px",
-              height: "1px",
-              backgroundColor: "var(--text-primary)",
-              opacity: 0.15,
-              marginTop: "32px",
-            }}
-          />
-          <div
-            ref={scrollHintRef}
-            style={{
-              position: "absolute",
-              bottom: "36px",
-              left: "50%",
-              transform: "translateX(-50%)",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: "6px",
-              opacity: 0.6,
+              fontFamily: "var(--font-body)",
+              fontSize: "10px",
+              fontWeight: 500,
+              letterSpacing: "0.2em",
+              textTransform: "uppercase" as const,
+              color: "var(--text-secondary)",
             }}
           >
-            <span
-              style={{
-                fontFamily: "var(--font-body)",
-                fontSize: "10px",
-                fontWeight: 500,
-                letterSpacing: "0.2em",
-                textTransform: "uppercase" as const,
-                color: "var(--text-secondary)",
-              }}
-            >
-              Scroll
-            </span>
-            <svg
-              className="scroll-indicator-chevron"
-              width="14"
-              height="9"
-              viewBox="0 0 14 9"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M1 1L7 7L13 1"
-                stroke="var(--text-secondary)"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </div>
+            Scroll
+          </span>
+          <svg
+            className="scroll-indicator-chevron"
+            width="14"
+            height="9"
+            viewBox="0 0 14 9"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M1 1L7 7L13 1"
+              stroke="var(--text-secondary)"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </div>
-      </section>
+      </div>
 
-      {/* Section 2: Infinite Masonry Grid (flowing) */}
-      <section ref={gridContainerRef} style={{ padding: "16px" }}>
+      {/* Sentinel — 100vh of scroll space for the hero fade animation */}
+      <div ref={scrollSentinelRef} style={{ height: "100vh" }} />
+
+      {/* Continuous grid — pulled up to y=0 so it sits behind the hero overlay */}
+      <section ref={gridContainerRef} style={{ padding: "8px", marginTop: "-100vh" }}>
         <Masonry
           breakpointCols={breakpointColumns}
           className="masonry-grid"

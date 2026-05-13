@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\('dependencies',{}\\), indent=2\\)\\)\")",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(ls \"C:\\\\DATA\\\\Fateh.Hizal\\\\OneDrive - stellargroup.com\\\\Downloads\\\\WindSong\")",
+      "Read(//c/DATA/Fateh.Hizal/OneDrive - stellargroup.com/Downloads/WindSong/**)",
+      "Bash(cp \"C:\\\\DATA\\\\Fateh.Hizal\\\\OneDrive - stellargroup.com\\\\Downloads\\\\WindSong\\\\WindSong-Regular.ttf\" \"c:\\\\Users\\\\Fateh.Hizal\\\\Apps\\\\fitria\\\\fitriaxfateh\\\\gallery\\\\public\\\\fonts\\\\WindSong-Regular.ttf\")",
+      "Bash(cp \"C:\\\\DATA\\\\Fateh.Hizal\\\\OneDrive - stellargroup.com\\\\Downloads\\\\WindSong\\\\WindSong-Medium.ttf\" \"c:\\\\Users\\\\Fateh.Hizal\\\\Apps\\\\fitria\\\\fitriaxfateh\\\\gallery\\\\public\\\\fonts\\\\WindSong-Medium.ttf\")"
     ]
   }
 }
