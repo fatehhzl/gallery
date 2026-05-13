@@ -33,8 +33,11 @@ const BATCH_SIZE = 20;
 
 function getShuffledBatch(count: number, offset: number, exclude: Set<string> = new Set()) {
   const available = ALL_IMAGES.filter((img) => !exclude.has(img.src));
-  const pool = available.length >= count ? available : ALL_IMAGES;
-  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  // Recycle all images if we need more than what's unique
+  const rounds = Math.ceil(count / ALL_IMAGES.length);
+  const pool = Array.from({ length: rounds }, () => [...ALL_IMAGES]).flat();
+  const filtered = available.length >= count ? available : pool;
+  const shuffled = [...filtered].sort(() => Math.random() - 0.5);
   return shuffled.slice(0, count).map((img, i) => ({
     ...img,
     uniqueKey: `${img.src}-${offset + i}-${Date.now()}`,
@@ -49,7 +52,7 @@ interface ImageItem {
 
 export default function App() {
   const [images, setImages] = useState<ImageItem[]>(() =>
-    getShuffledBatch(20, 0)
+    getShuffledBatch(120, 0)
   );
   const [loading, setLoading] = useState(false);
   const [heroExited, setHeroExited] = useState(false);
@@ -59,8 +62,9 @@ export default function App() {
   const ruleRef = useRef<HTMLDivElement>(null);
   const scrollHintRef = useRef<HTMLDivElement>(null);
   const gridContainerRef = useRef<HTMLDivElement>(null);
-  const loadedCountRef = useRef(20);
+  const loadedCountRef = useRef(120);
   const loadTriggerRef = useRef<ScrollTrigger | null>(null);
+  const observerRef = useRef<IntersectionObserver | null>(null);
 
   // Hero overlay scroll animation
   useEffect(() => {
@@ -124,6 +128,36 @@ export default function App() {
     }, 300);
   }, [loading, images]);
 
+  // Create persistent IntersectionObserver for scroll fade
+  useEffect(() => {
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const el = entry.target as HTMLElement;
+          if (entry.isIntersecting) {
+            gsap.to(el, { opacity: 1, duration: 0.55, ease: 'power1.out', overwrite: true });
+          } else if (entry.boundingClientRect.top > 0) {
+            // exiting bottom of viewport (user scrolling up) → fade out
+            gsap.to(el, { opacity: 0, duration: 0.35, ease: 'power1.in', overwrite: true });
+          }
+          // exiting top of viewport (user scrolling down) → do nothing, stay visible
+        });
+      },
+      { threshold: 0 }
+    );
+    return () => observerRef.current?.disconnect();
+  }, []);
+
+  // Observe newly added cards
+  useEffect(() => {
+    if (!observerRef.current) return;
+    const cards = document.querySelectorAll<HTMLElement>('.grid-image-card:not([data-observed])');
+    cards.forEach((card) => {
+      card.dataset.observed = 'true';
+      observerRef.current!.observe(card);
+    });
+  }, [images.length]);
+
   // Set up infinite scroll trigger
   useEffect(() => {
     if (loadTriggerRef.current) {
@@ -141,48 +175,6 @@ export default function App() {
     return () => ctx.revert();
   }, [images.length, loadMoreImages]);
 
-  // Global snap for hero pinned section only
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      const pinned = ScrollTrigger.getAll()
-        .filter((st) => st.vars.pin)
-        .sort((a, b) => a.start - b.start);
-
-      const maxScroll = ScrollTrigger.maxScroll(window);
-      if (!maxScroll || pinned.length === 0) return;
-
-      const pinnedRanges = pinned.map((st) => ({
-        start: st.start / maxScroll,
-        end: (st.end ?? st.start) / maxScroll,
-        center: (st.start + ((st.end ?? st.start) - st.start) * 0.75) / maxScroll,
-      }));
-
-      ScrollTrigger.create({
-        snap: {
-          snapTo: (value) => {
-            const inPinned = pinnedRanges.some(
-              (r) => value >= r.start - 0.02 && value <= r.end + 0.02
-            );
-            if (!inPinned) return value;
-
-            const target = pinnedRanges.reduce(
-              (closest, r) =>
-                Math.abs(r.center - value) < Math.abs(closest - value)
-                  ? r.center
-                  : closest,
-              pinnedRanges[0]?.center ?? 0
-            );
-            return target;
-          },
-          duration: { min: 0.15, max: 0.35 },
-          delay: 0,
-          ease: "power2.out",
-        },
-      });
-    }, 500);
-
-    return () => clearTimeout(timeout);
-  }, []);
 
   const breakpointColumns = {
     default: 5,
@@ -353,19 +345,44 @@ export default function App() {
             ref={scrollHintRef}
             style={{
               position: "absolute",
-              bottom: "32px",
+              bottom: "36px",
               left: "50%",
               transform: "translateX(-50%)",
-              fontFamily: "var(--font-body)",
-              fontSize: "11px",
-              fontWeight: 500,
-              letterSpacing: "0.12em",
-              textTransform: "uppercase" as const,
-              color: "var(--text-secondary)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "6px",
               opacity: 0.6,
             }}
           >
-            Scroll to explore
+            <span
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "10px",
+                fontWeight: 500,
+                letterSpacing: "0.2em",
+                textTransform: "uppercase" as const,
+                color: "var(--text-secondary)",
+              }}
+            >
+              Scroll
+            </span>
+            <svg
+              className="scroll-indicator-chevron"
+              width="14"
+              height="9"
+              viewBox="0 0 14 9"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M1 1L7 7L13 1"
+                stroke="var(--text-secondary)"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
           </div>
         </div>
       </section>
@@ -377,14 +394,10 @@ export default function App() {
           className="masonry-grid"
           columnClassName="masonry-grid-column"
         >
-          {images.map((img, index) => (
+          {images.map((img) => (
             <div
               key={img.uniqueKey}
-              className="image-card fade-in-up"
-              style={{
-                animationDelay: `${Math.min(index * 0.03, 0.6)}s`,
-                animationFillMode: "both",
-              }}
+              className="image-card grid-image-card"
             >
               <img
                 src={img.src}

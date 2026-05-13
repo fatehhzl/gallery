@@ -58,17 +58,17 @@
 /* Masonry Grid Styles */
 .masonry-grid {
   display: flex;
-  margin-left: -16px;
+  margin-left: -8px;
   width: auto;
 }
 
 .masonry-grid-column {
-  padding-left: 16px;
+  padding-left: 8px;
   background-clip: padding-box;
 }
 
 .masonry-grid-column > div {
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 /* Image card hover */
@@ -125,26 +125,41 @@
 /* Responsive masonry gutters */
 @media (max-width: 1023px) {
   .masonry-grid {
-    margin-left: -12px;
+    margin-left: -6px;
   }
   .masonry-grid-column {
-    padding-left: 12px;
+    padding-left: 6px;
   }
   .masonry-grid-column > div {
-    margin-bottom: 12px;
+    margin-bottom: 6px;
   }
 }
 
 @media (max-width: 767px) {
   .masonry-grid {
-    margin-left: -8px;
+    margin-left: -4px;
   }
   .masonry-grid-column {
-    padding-left: 8px;
+    padding-left: 4px;
   }
   .masonry-grid-column > div {
-    margin-bottom: 8px;
+    margin-bottom: 4px;
   }
+}
+
+/* Grid image scroll-fade */
+.grid-image-card {
+  opacity: 0;
+}
+
+/* Scroll indicator animation */
+@keyframes scrollBounce {
+  0%, 100% { transform: translateY(0); opacity: 0.5; }
+  50% { transform: translateY(7px); opacity: 1; }
+}
+
+.scroll-indicator-chevron {
+  animation: scrollBounce 1.6s ease-in-out infinite;
 }
 
 /* Grain overlay */
