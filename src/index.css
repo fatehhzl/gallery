@@ -11,7 +11,9 @@
     --text-secondary: #6B6560;
 
     --font-display: 'Cormorant Garamond', Georgia, serif;
-    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-script: 'WindSong', cursive;
+    --font-body: 'Montserrat', sans-serif;
+    --font-sans: 'Montserrat', sans-serif;
 
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;

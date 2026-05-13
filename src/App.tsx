@@ -58,7 +58,7 @@ export default function App() {
   const [heroExited, setHeroExited] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
-  const nameRef = useRef<HTMLHeadingElement>(null);
+  const nameRef = useRef<HTMLDivElement>(null);
   const ruleRef = useRef<HTMLDivElement>(null);
   const scrollHintRef = useRef<HTMLDivElement>(null);
   const gridContainerRef = useRef<HTMLDivElement>(null);
@@ -148,12 +148,10 @@ export default function App() {
     return () => observerRef.current?.disconnect();
   }, []);
 
-  // Observe newly added cards
+  // Observe all cards — safe to call on already-observed elements (no-op)
   useEffect(() => {
     if (!observerRef.current) return;
-    const cards = document.querySelectorAll<HTMLElement>('.grid-image-card:not([data-observed])');
-    cards.forEach((card) => {
-      card.dataset.observed = 'true';
+    document.querySelectorAll<HTMLElement>('.grid-image-card').forEach((card) => {
       observerRef.current!.observe(card);
     });
   }, [images.length]);
@@ -207,7 +205,7 @@ export default function App() {
       >
         <div
           style={{
-            fontFamily: "var(--font-display)",
+            fontFamily: "var(--font-script)",
             fontSize: "22px",
             fontWeight: 400,
             color: "var(--text-primary)",
@@ -315,22 +313,41 @@ export default function App() {
             zIndex: 10,
           }}
         >
-          <h1
+          <div
             ref={nameRef}
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "clamp(80px, 14vw, 200px)",
-              fontWeight: 300,
-              lineHeight: 0.9,
-              letterSpacing: "-0.03em",
-              color: "var(--text-primary)",
-              margin: 0,
-              textAlign: "center",
-              userSelect: "none",
-            }}
+            style={{ position: "relative", display: "inline-block", userSelect: "none" }}
           >
-            Fitria
-          </h1>
+            <h1
+              style={{
+                fontFamily: "var(--font-script)",
+                fontSize: "clamp(80px, 14vw, 200px)",
+                fontWeight: 400,
+                lineHeight: 0.9,
+                letterSpacing: "0.01em",
+                color: "var(--text-primary)",
+                margin: 0,
+                textAlign: "center",
+              }}
+            >
+              Fitria
+            </h1>
+            <span
+              style={{
+                position: "absolute",
+                right: "-8px",
+                bottom: "-22px",
+                fontFamily: "var(--font-sans)",
+                fontSize: "clamp(9px, 0.85vw, 12px)",
+                fontWeight: 300,
+                letterSpacing: "0.28em",
+                textTransform: "uppercase" as const,
+                color: "var(--text-secondary)",
+                whiteSpace: "nowrap",
+              }}
+            >
+              photography
+            </span>
+          </div>
           <div
             ref={ruleRef}
             style={{
