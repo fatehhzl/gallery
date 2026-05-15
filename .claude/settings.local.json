@@ -6,7 +6,10 @@
       "Bash(ls \"C:\\\\DATA\\\\Fateh.Hizal\\\\OneDrive - stellargroup.com\\\\Downloads\\\\WindSong\")",
       "Read(//c/DATA/Fateh.Hizal/OneDrive - stellargroup.com/Downloads/WindSong/**)",
       "Bash(cp \"C:\\\\DATA\\\\Fateh.Hizal\\\\OneDrive - stellargroup.com\\\\Downloads\\\\WindSong\\\\WindSong-Regular.ttf\" \"c:\\\\Users\\\\Fateh.Hizal\\\\Apps\\\\fitria\\\\fitriaxfateh\\\\gallery\\\\public\\\\fonts\\\\WindSong-Regular.ttf\")",
-      "Bash(cp \"C:\\\\DATA\\\\Fateh.Hizal\\\\OneDrive - stellargroup.com\\\\Downloads\\\\WindSong\\\\WindSong-Medium.ttf\" \"c:\\\\Users\\\\Fateh.Hizal\\\\Apps\\\\fitria\\\\fitriaxfateh\\\\gallery\\\\public\\\\fonts\\\\WindSong-Medium.ttf\")"
+      "Bash(cp \"C:\\\\DATA\\\\Fateh.Hizal\\\\OneDrive - stellargroup.com\\\\Downloads\\\\WindSong\\\\WindSong-Medium.ttf\" \"c:\\\\Users\\\\Fateh.Hizal\\\\Apps\\\\fitria\\\\fitriaxfateh\\\\gallery\\\\public\\\\fonts\\\\WindSong-Medium.ttf\")",
+      "Bash(Get-ChildItem \"C:\\\\DATA\\\\Fateh.Hizal\\\\OneDrive - stellargroup.com\\\\Downloads\\\\WhatsApp Unknown 2026-05-15 at 09.29.57\")",
+      "Bash(Select-Object Name, Extension)",
+      "Bash(Sort-Object Name)"
     ]
   }
 }
